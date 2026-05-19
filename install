@@ -1,19 +1,20 @@
 #!/bin/bash
-set -e
 
-SCRIPT_NAME="void-helper"
-INSTALL_DIR="/usr/local/bin"
+source /etc/os-release
 
-echo -e "\e[1mСкачивание $SCRIPT_NAME...\e[0m"
-mkdir -p "/tmp/$SCRIPT_NAME"
-curl -fsSL \
-"https://raw.githubusercontent.com/idoffront/void-helper/main/vh" -o "/tmp/$SCRIPT_NAME/vh"
-echo
-echo -e "\e[1mУстановка в $INSTALL_DIR\e[0m"
-sudo install -m 755 "/tmp/$SCRIPT_NAME/vh" "$INSTALL_DIR/vh"
-echo
-echo -e "\e[1mУдаление временных файлов\e[0m"
-rm -rf "/tmp/$SCRIPT_NAME"
-echo
-echo -e "\e[1mУстановка успешно завершена! Запустите: "vh"\e[0m"
-exit
+case "$ID" in
+    void)
+        curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/void/install | bash
+        ;;
+    ubuntu|debian|linuxmint)
+        curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/debian/install | bash
+        ;;
+    fedora)
+        curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/fedora/install | bash
+        ;;
+    *)
+        echo -e "\e[1mДистрибутив не поддерживается.\e[0m"
+        echo
+        echo "Создайте issue на ГитХабе проекта и возможно появится поддержка вашего дистрибутива."
+        exit
+esac

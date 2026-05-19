@@ -8,7 +8,7 @@ info() {
 
     kernel=$(uname -r)
 
-    packages=$(xbps-query -l | wc -l)
+    packages=$(dpkg -l | wc -l)
 
     de=${XDG_CURRENT_DESKTOP:-Unknown}
 
@@ -24,23 +24,22 @@ info() {
     printf "Время работы : %s\n" "$uptime"
     echo
     echo "Репозитории:"
-
-    xbps-query -L | sed 's/^/ [*] /'
+    grep -h '^URIs' /etc/apt/sources.list.d/*.sources 2>/dev/null | sed 's/^/ [*] /'
 }
 
 update() {
     sudo -v
     echo -e "\e[1mСинхронизация репозиториев\e[0m"
     echo
-    sudo xbps-install -S
+    sudo apt update
     echo
     echo -e "\e[1mОбновление пакетов\e[0m"
     echo
-    sudo xbps-install -u
+    sudo apt upgrade
     echo
     echo -e "\e[1mПакеты обновлены или обновлений нет\e[0m"
     echo
-    sudo xbps-remove -o
+    sudo apt autoremove
     echo
     echo -e "\e[1mГотово!\e[0m"
 }
@@ -48,9 +47,9 @@ update() {
 check_service() {
     service=$1
 
-    status=$(sudo sv status "$service" 2>/dev/null)
+    status=$(systemctl is-active "$service" )
 
-    if echo "$status" |grep -q '^run:'; then
+    if echo "$status" |grep -q '^active'; then
         echo "[ОК] $service"
     else
         echo "[НЕ РАБОТАЕТ] $service"
@@ -65,8 +64,8 @@ check() {
     check_service "NetworkManager"
     check_service "wpa_supplicant"
     echo -e "\e[1mЗвук:\e[0m"
-    any_diff_process_BLYAT "pipewire"
-    any_diff_process_BLYAT "wireplumber"
+    any_diff_process "pipewire"
+    any_diff_process "wireplumber"
     echo -e "\e[1mОстальное:\e[0m"
     check_service "dbus"
     check_service "polkitd"
@@ -76,8 +75,8 @@ check() {
     echo "NetworkManager и wpa_supplicant взаимозаменяемые, если один работает, а другой нет - всё хорошо."
     echo "Почему у вас может не работать bluetoothd, думаю, вы сами знаете."
 }
-
-any_diff_process_BLYAT() {
+# хоть функция и потеряла свое истинное название, но все то что я с ним пережил - навсегда в моем сердце.
+any_diff_process() {
     process="$1"
 
     if pgrep "$process" >/dev/null; then
@@ -89,17 +88,17 @@ any_diff_process_BLYAT() {
 
 update-vh() {
     echo -e "\e[1mОбновление Void-Helper\e[0m"
-    curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/install | bash
+    curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/debian/install | bash
     echo -e "\e[1mОбновление завершено.\e[0m"
 }
-
+# Очень долго чинили find
 find() {
     packet=$1
-    query=$(xbps-query -Rs "$packet" 2>/dev/null)
-    
+    query=$(apt-cache search "$packet" 2>/dev/null)
+
     echo -e "\e[1mПоиск пакета:\e[0m"
-    if echo "$query" | grep -q  '[-]'; then
-        xbps-query -Rs "$packet"
+    if [ -n "query" ]; then
+        echo "$query" | sed 's/^/ [*] /'
     else
         echo -e "\e[1mПакет не найден.\e[0m"
         echo -e "\e[1mПопробуйте написать название с большой, либо маленькой буквы.\e[0m"
