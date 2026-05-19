@@ -8,7 +8,7 @@ info() {
 
     kernel=$(uname -r)
 
-#    packages=$(dnf list | wc -l)
+    packages=$(rpm -qa | wc -l)
 
     de=${XDG_CURRENT_DESKTOP:-Unknown}
 
@@ -18,14 +18,14 @@ info() {
 
     printf "Дистрибутив  : %s\n" "$distro"
     printf "Ядро         : %s\n" "$kernel"
-#    printf "Пакеты       : %s\n" "$packages"
+    printf "Пакеты       : %s\n" "$packages"
     printf "Граф. Окруж. : %s\n" "$de"
     printf "Диск         : %s\n" "$disk"
     printf "Время работы : %s\n" "$uptime"
-#    echo
-#    echo "Репозитории:"
+    echo
+    echo "Репозитории:"
 
-#    xbps-query -L | sed 's/^/ [*] /'
+    dnf repolist --enabled | awk 'NR>1 {print $1}' | sed 's/^/ [*] /'
 }
 
 update() {
@@ -61,8 +61,8 @@ check() {
     check_service "NetworkManager"
     check_service "wpa_supplicant"
     echo -e "\e[1mЗвук:\e[0m"
-    any_diff_process_BLYAT "pipewire"
-    any_diff_process_BLYAT "wireplumber"
+    any_diff_process "pipewire"
+    any_diff_process "wireplumber"
     echo -e "\e[1mОстальное:\e[0m"
     check_service "dbus"
     check_service "polkit"
@@ -72,8 +72,8 @@ check() {
     echo "NetworkManager и wpa_supplicant взаимозаменяемые, если один работает, а другой нет - всё хорошо."
     echo "Почему у вас может не работать bluetoothd, думаю, вы сами знаете."
 }
-
-any_diff_process_BLYAT() {
+# хоть функция и потеряла свое истинное название, но все то что я с ним пережил - навсегда в моем сердце.
+any_diff_process() {
     process="$1"
 
     if pgrep "$process" >/dev/null; then
