@@ -85,7 +85,7 @@ any_diff_process() {
 
 update-vh() {
     echo -e "\e[1mОбновление Void-Helper\e[0m"
-    curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/fedora/install | bash
+    curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/install | bash
     echo -e "\e[1mОбновление завершено.\e[0m"
 }
 
