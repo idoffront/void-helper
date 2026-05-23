@@ -106,6 +106,55 @@ find() {
     fi
 }
 
+tui() {
+   while true; do
+        clear
+
+        choice=$(gum choose \
+            "Системная информация" \
+            "Обновление системы" \
+            "Проверка сервисов" \
+            "Поиск пакета" \
+            "Обновление скрипта" \
+            "Выход")
+
+        clear
+
+        case "$choice" in
+            "Системная информация")
+                clear
+                info
+                ;;
+
+            "Обновление системы")
+                clear
+                update
+                ;;
+
+            "Проверка сервисов")
+                check
+                ;;
+
+            "Поиск пакета")
+                read -p "Пакет:" package
+                find "$package"
+                ;;
+
+            "Обновление скрипта")
+                update-vh
+                ;;
+
+            "Выход")
+                break
+                ;;
+        esac
+
+        echo
+        read -p "Нажмите Enter чтобы вернуться в меню"
+        clear
+    done
+}
+
 case "$1" in
     info)
         info
@@ -113,10 +162,6 @@ case "$1" in
 
     update)
         update
-        ;;
-
-    check_s)
-        check_service "$2"
         ;;
 
     check)
@@ -130,17 +175,22 @@ case "$1" in
     find)
         find "$2"
         ;;
-        
-    *)
-        echo "Доступные команды: vh {info|find|update|update-vh|check|check_s}"
+
+    help)
+        echo "Доступные команды: vh {*|info|find|update|update-vh|check|help}"
         echo -e "\e[1m~~~\e[0m"
+        echo "vh - открывает минималистичный интерфейс"
         echo "info - выдает достаточно useful информацию об системе"
         echo "find - находит пакет в репозиториях"
         echo "update - обновляет систему/пакеты"
         echo "update-vh - обновляет этот скрипт"
-        echo "check - проверяет важные сервисы"
-        echo "check_s [сервис] - проверяет нужный вам сервис"
+        echo "check - проверяет некоторые сервисы"
+        echo "help - показывает справку"
         ;;
 
+
+    *)
+        tui
+        ;;
 
 esac
