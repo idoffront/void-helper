@@ -102,8 +102,10 @@ find() {
     fi
 }
 
+
 tui() {
    while true; do
+        clear
 
         choice=$(gum choose \
             "Системная информация" \
@@ -159,10 +161,6 @@ case "$1" in
         update
         ;;
 
-    check_s)
-        check_service "$2"
-        ;;
-
     check)
         check
         ;;
@@ -175,21 +173,21 @@ case "$1" in
         find "$2"
         ;;
 
-    tui)
-        tui
-        ;;
-
-    *)
-        echo "Доступные команды: vh {tui|info|find|update|update-vh|check|check_s}"
+    help)
+        echo "Доступные команды: vh {*|info|find|update|update-vh|check|help}"
         echo -e "\e[1m~~~\e[0m"
-        echo "tui - открывает минималистичный интерфейс"
+        echo "vh - открывает минималистичный интерфейс"
         echo "info - выдает достаточно useful информацию об системе"
         echo "find - находит пакет в репозиториях"
         echo "update - обновляет систему/пакеты"
         echo "update-vh - обновляет этот скрипт"
-        echo "check - проверяет важные сервисы"
-        echo "check_s [сервис] - проверяет нужный вам сервис"
+        echo "check - проверяет некоторые сервисы"
+        echo "help - показывает справку"
         ;;
 
+
+    *)
+        tui
+        ;;
 
 esac
