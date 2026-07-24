@@ -45,48 +45,6 @@ update() {
     echo -e "\e[1mГотово!\e[0m"
 }
 
-check_service() {
-    service=$1
-
-    status=$(sudo sv status "$service" 2>/dev/null)
-
-    if echo "$status" |grep -q '^run:'; then
-        echo "[ОК] $service"
-    else
-        echo "[НЕ РАБОТАЕТ] $service"
-    fi
-}
-
-check() {
-    sudo -v
-    echo -e "\e[1mПроверка служб\e[0m"
-    echo "-------------"
-    echo -e "\e[1mСеть:\e[0m"
-    check_service "NetworkManager"
-    check_service "wpa_supplicant"
-    echo -e "\e[1mЗвук:\e[0m"
-    any_diff_process "pipewire"
-    any_diff_process "wireplumber"
-    echo -e "\e[1mОстальное:\e[0m"
-    check_service "dbus"
-    check_service "polkitd"
-    check_service "bluetoothd"
-    check_service "sshd"
-    echo
-    echo "NetworkManager и wpa_supplicant взаимозаменяемые, если один работает, а другой нет - всё хорошо."
-    echo "Почему у вас может не работать bluetoothd, думаю, вы сами знаете."
-}
-# хоть функция и потеряла свое истинное название, но все то что я с ним пережил - навсегда в моем сердце.
-any_diff_process() {
-    process="$1"
-
-    if pgrep "$process" >/dev/null; then
-        echo "[ОК] $process"
-    else
-        echo "[НЕ РАБОТАЕТ] $process"
-    fi
-}
-
 update-vh() {
     echo -e "\e[1mОбновление Void-Helper\e[0m"
     curl -fsSL https://raw.githubusercontent.com/idoffront/void-helper/main/install | bash
@@ -96,7 +54,7 @@ update-vh() {
 find() {
     packet=$1
     query=$(xbps-query -Rs "$packet" 2>/dev/null)
-    
+
     echo -e "\e[1mПоиск пакета:\e[0m"
     if echo "$query" | grep -q  '[-]'; then
         xbps-query -Rs "$packet"
@@ -131,10 +89,6 @@ tui() {
                 update
                 ;;
 
-            "Проверка сервисов")
-                check
-                ;;
-
             "Поиск пакета")
                 read -p "Пакет:" package
                 find "$package"
@@ -164,27 +118,24 @@ case "$1" in
         update
         ;;
 
-    check)
-        check
         ;;
-        
+
     update-vh)
         update-vh
         ;;
-        
+
     find)
         find "$2"
         ;;
 
     help)
-        echo "Доступные команды: vh {*|info|find|update|update-vh|check|help}"
+        echo "Доступные команды: vh {*|info|find|update|update-vh||help}"
         echo -e "\e[1m~~~\e[0m"
         echo "vh - открывает минималистичный интерфейс"
         echo "info - выдает достаточно useful информацию об системе"
         echo "find - находит пакет в репозиториях"
         echo "update - обновляет систему/пакеты"
         echo "update-vh - обновляет этот скрипт"
-        echo "check - проверяет некоторые сервисы"
         echo "help - показывает справку"
         ;;
 
