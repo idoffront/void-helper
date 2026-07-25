@@ -107,7 +107,8 @@ preset_kde() {
     if gum confirm "Установить KDE Plasma?"; then
         echo "Устанавливаю KDE Plasma..."
         sudo xbps-install -S kde-plasma sddm
-        echo "Установка завершена. Добавьте SDDM в автозагрузку (sudo ln -s /etc/sv/sddm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+        sudo ln -s /etc/sv/sddm /var/service
+        echo "Установка завершена. SDDM добавлен в автозагрузку. Можете выбрать дополнительные пакеты в "Добавить пакеты"."
     fi
 }
 
@@ -120,7 +121,8 @@ preset_gnome() {
     if gum confirm "Установить GNOME?"; then
         echo "Устанавливаю GNOME..."
         sudo xbps-install -S gnome gdm
-        echo "Установка завершена. Добавьте GDM в автозагрузку (sudo ln -s /etc/sv/gdm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+        sudo ln -s /etc/sv/gdm /var/service
+        echo "Установка завершена. GDM добавлен в автозагрузку. Можете выбрать дополнительные пакеты в "Добавить пакеты"."
     fi
 }
 
@@ -133,7 +135,8 @@ preset_xfce() {
     if gum confirm "Установить XFCE?"; then
         echo "Устанавливаю XFCE..."
         sudo xbps-install -S xfce4 lightdm
-        echo "Установка завершена. Добавьте lightdm в автозагрузку (sudo ln -s /etc/sv/lightdm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+        sudo ln -s /etc/sv/lightdm /var/service
+        echo "Установка завершена. LightDM добавлен в автозагрузку. Можете выбрать дополнительные пакеты в "Добавить пакеты"."
     fi
 }
 
@@ -146,7 +149,8 @@ preset_niri() {
     if gum confirm "Установить Niri?"; then
         echo "Устанавливаю Niri..."
         sudo xbps-install -S niri sddm
-        echo "Установка завершена. Добавьте sddm в автозагрузку (sudo ln -s /etc/sv/sddm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+        sudo ln -s /etc/sv/sddm /var/service
+        echo "Установка завершена. SDDM добавлен в автозагрузку. Можете выбрать дополнительные пакеты в "Добавить пакеты"."
     fi
 }
 
@@ -155,7 +159,7 @@ preset_niri() {
 preset_add_packages() {
     packages=$(gum choose \
         "KDE Apps" \
-        "Noctalia (for Niri)" \
+        "Noctalia" \
         "Office" \
         "Multimedia" \
         "Internet")
@@ -164,7 +168,7 @@ preset_add_packages() {
         "KDE Apps")
             preset_kde_apps
             ;;
-        "Noctalia (for Niri)")
+        "Noctalia")
             preset_noctalia
             ;;
         "Office")
@@ -188,10 +192,10 @@ preset_kde_apps() {
 }
 
 preset_noctalia() {
-    echo -e "\e[1mУстановка Noctalia (for Niri):\e[0m"
+    echo -e "\e[1mУстановка Noctalia:\e[0m"
     echo "repository=https://repo.voiders.dev" | sudo tee /etc/xbps.d/10-voiders-community.conf
     sudo xbps-install -S noctalia
-    echo -e "\e[1mУстановка завершена.\e[0m"
+    echo -e "\e[1mУстановка завершена. Добавьте Noctalia в конфиг вашего окружения.\e[0m"
 }
 
 preset_office() {
