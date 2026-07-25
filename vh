@@ -64,6 +64,156 @@ find() {
     fi
 }
 
+# Пресеты. Спасибо господи что дал такую вещь как Zed, я даже не напрягался.
+
+preset() {
+    echo -e "\e[1mВыберите пресет:\e[0m"
+    choice=$(gum choose \
+        "KDE Plasma" \
+        "GNOME" \
+        "Xfce" \
+        "Niri" \
+        "Добавить набор программ")
+
+        if gum confirm "Вы уверены, что хотите выбрать $choice?"; then
+            case "$choice" in
+                "KDE Plasma")
+                    preset_kde
+                    ;;
+                "GNOME")
+                    preset_gnome
+                    ;;
+                "Xfce")
+                    preset_xfce
+                    ;;
+                "Niri")
+                    preset_niri
+                    ;;
+                "Добавить набор программ")
+                    preset_add_packages
+                    ;;
+            esac
+        fi
+}
+
+# Пресеты десктоп энвайронмент так называемых
+
+preset_kde() {
+    echo -e "\e[1mВы выбрали KDE Plasma\e[0m"
+    echo "Будут установлены:"
+    echo "KDE Plasma"
+    echo "SDDM"
+
+    if gum confirm "Установить KDE Plasma?"; then
+        echo "Устанавливаю KDE Plasma..."
+        sudo xbps-install -S kde-plasma sddm
+        echo "Установка завершена. Добавьте SDDM в автозагрузку (sudo ln -s /etc/sv/sddm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+    fi
+}
+
+preset_gnome() {
+    echo -e "\e[1mВы выбрали GNOME\e[0m"
+    echo "Будут установлены:"
+    echo "GNOME"
+    echo "GDM"
+
+    if gum confirm "Установить GNOME?"; then
+        echo "Устанавливаю GNOME..."
+        sudo xbps-install -S gnome gdm
+        echo "Установка завершена. Добавьте GDM в автозагрузку (sudo ln -s /etc/sv/gdm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+    fi
+}
+
+preset_xfce() {
+    echo -e "\e[1mВы выбрали XFCE\e[0m"
+    echo "Будут установлены:"
+    echo "XFCE"
+    echo "lightdm"
+
+    if gum confirm "Установить XFCE?"; then
+        echo "Устанавливаю XFCE..."
+        sudo xbps-install -S xfce4 lightdm
+        echo "Установка завершена. Добавьте lightdm в автозагрузку (sudo ln -s /etc/sv/lightdm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+    fi
+}
+
+preset_niri() {
+    echo -e "\e[1mВы выбрали Niri\e[0m"
+    echo "Будут установлены:"
+    echo "Niri"
+    echo "sddm"
+
+    if gum confirm "Установить Niri?"; then
+        echo "Устанавливаю Niri..."
+        sudo xbps-install -S niri sddm
+        echo "Установка завершена. Добавьте sddm в автозагрузку (sudo ln -s /etc/sv/sddm /var/service). Можете выбрать дополнительные пакеты в "Добавить пакеты"."
+    fi
+}
+
+# Добавление пакетов (кому это нужно лол)
+
+preset_add_packages() {
+    packages=$(gum choose \
+        "KDE Apps" \
+        "Noctalia (for Niri)" \
+        "Office" \
+        "Multimedia" \
+        "Internet")
+
+    case "$packages" in
+        "KDE Apps")
+            preset_kde_apps
+            ;;
+        "Noctalia (for Niri)")
+            preset_noctalia
+            ;;
+        "Office")
+            preset_office
+            ;;
+        "Multimedia")
+            preset_multimedia
+            ;;
+        "Internet")
+            preset_internet
+            ;;
+    esac
+}
+
+# Пресеты приложений
+
+preset_kde_apps() {
+    echo -e "\e[1mУстановка KDE Apps:\e[0m"
+    sudo xbps-install -S kde-applications
+    echo -e "\e[1mУстановка завершена.\e[0m"
+}
+
+preset_noctalia() {
+    echo -e "\e[1mУстановка Noctalia (for Niri):\e[0m"
+    echo "repository=https://repo.voiders.dev" | sudo tee /etc/xbps.d/10-voiders-community.conf
+    sudo xbps-install -S noctalia
+    echo -e "\e[1mУстановка завершена.\e[0m"
+}
+
+preset_office() {
+    echo -e "\e[1mУстановка Office:\e[0m"
+    sudo xbps-install -S libreoffice
+    echo -e "\e[1mУстановка завершена.\e[0m"
+}
+
+preset_multimedia() {
+    echo -e "\e[1mУстановка Multimedia:\e[0m"
+    sudo xbps-install -S vlc mpv
+    echo -e "\e[1mУстановка завершена.\e[0m"
+}
+
+preset_internet() {
+    echo -e "\e[1mУстановка Internet:\e[0m"
+    sudo xbps-install -S firefox thunderbird
+    echo -e "\e[1mУстановка завершена.\e[0m"
+}
+
+# Пресеты приложений кончились
+
 tui() {
    while true; do
         clear
@@ -71,6 +221,7 @@ tui() {
         choice=$(gum choose \
             "Системная информация" \
             "Обновление системы" \
+            "Установка Desktop Environment" \
             "Проверка сервисов" \
             "Поиск пакета" \
             "Обновление скрипта" \
@@ -87,6 +238,11 @@ tui() {
             "Обновление системы")
                 clear
                 update
+                ;;
+
+            "Установка Desktop Environment")
+                clear
+                preset
                 ;;
 
             "Поиск пакета")
@@ -118,6 +274,8 @@ case "$1" in
         update
         ;;
 
+    preset)
+        preset
         ;;
 
     update-vh)
@@ -129,13 +287,14 @@ case "$1" in
         ;;
 
     help)
-        echo "Доступные команды: vh {*|info|find|update|update-vh||help}"
+        echo "Доступные команды: vh {*|info|find|update|update-vh|preset|help}"
         echo -e "\e[1m~~~\e[0m"
         echo "vh - открывает минималистичный интерфейс"
         echo "info - выдает достаточно useful информацию об системе"
         echo "find - находит пакет в репозиториях"
         echo "update - обновляет систему/пакеты"
         echo "update-vh - обновляет этот скрипт"
+        echo "preset - устанавливает Desktop Environment"
         echo "help - показывает справку"
         ;;
 
